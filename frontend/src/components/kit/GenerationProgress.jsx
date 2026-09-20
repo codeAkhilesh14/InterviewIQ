@@ -1,6 +1,15 @@
 import React from "react"
 import { CheckCircle2, XCircle, Loader2, Circle, MinusCircle } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../ui/Card.jsx"
+import Meter from "../charts/Meter.jsx"
+
+// Canonical step order from runPipeline.js - used only to compute a smooth
+// determinate percentage; "warnings" is an optional trailer, not a real step.
+const STEP_ORDER = [
+    "extract_requirements", "crawl_company_site", "public_discussion", "interview_process",
+    "company_brief", "generate_questions", "generate_flashcards", "coverage_check",
+    "build_schedule", "validate"
+]
 
 const STEP_LABELS = {
     extract_requirements: "Extracting requirements from the job description",
@@ -36,8 +45,23 @@ const collapseSteps = (progress) => {
     return order.map((step) => byStep.get(step))
 }
 
+// Weights "running" as half a step done, everything terminal as a full step, so
+// the meter creeps forward smoothly rather than jumping in 10 big chunks.
+const computeProgressPercent = (steps) => {
+    const byStep = new Map(steps.map((s) => [s.step, s]))
+    let done = 0
+    for (const step of STEP_ORDER) {
+        const event = byStep.get(step)
+        if (!event) continue
+        if (event.status === "running") done += 0.5
+        else done += 1
+    }
+    return Math.round((done / STEP_ORDER.length) * 100)
+}
+
 const GenerationProgress = ({ kit }) => {
     const steps = collapseSteps(kit.progress)
+    const percent = computeProgressPercent(steps)
 
     return (
         <div className="mx-auto max-w-xl">
@@ -49,7 +73,8 @@ const GenerationProgress = ({ kit }) => {
                         discussion, then generate and cross-check each section.
                     </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="flex flex-col gap-5">
+                    <Meter label="Overall progress" value={percent} max={100} tone="primary" asPercent />
                     <ul className="flex flex-col gap-3" aria-live="polite">
                         {steps.length === 0 && (
                             <li className="flex items-center gap-3 text-sm text-muted-foreground">

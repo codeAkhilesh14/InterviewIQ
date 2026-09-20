@@ -1,13 +1,21 @@
-import React, { useEffect, useCallback } from "react"
+import React, { useEffect, useCallback, useMemo } from "react"
 import { Link } from "react-router-dom"
 import { useDispatch, useSelector } from "react-redux"
-import { PlusCircle, Inbox, AlertTriangle } from "lucide-react"
+import { PlusCircle, Inbox, AlertTriangle, Sparkles, Loader2, CheckCircle2, XCircle } from "lucide-react"
 import api from "../lib/axios.js"
 import { setKitList, setKitListStatus, removeKitFromList } from "../redux/kitSlice.js"
 import { Button } from "../components/ui/Button.jsx"
 import { Skeleton } from "../components/ui/Skeleton.jsx"
 import KitCard from "../components/kit/KitCard.jsx"
+import { cn } from "../lib/utils.js"
 import { toast } from "sonner"
+
+const STAT_CONFIG = [
+    { key: "total", label: "Total kits", Icon: Sparkles, color: "var(--chart-1)" },
+    { key: "generating", label: "Generating", Icon: Loader2, color: "var(--chart-warning)", spin: true },
+    { key: "ready", label: "Ready", Icon: CheckCircle2, color: "var(--chart-good)" },
+    { key: "failed", label: "Failed", Icon: XCircle, color: "var(--chart-critical)" }
+]
 
 const POLL_INTERVAL_MS = 4000
 
@@ -36,6 +44,13 @@ const Dashboard = () => {
         return () => clearInterval(interval)
     }, [list, fetchKits])
 
+    const stats = useMemo(() => ({
+        total: list.length,
+        generating: list.filter((k) => k.status === "pending" || k.status === "generating").length,
+        ready: list.filter((k) => k.status === "ready").length,
+        failed: list.filter((k) => k.status === "failed").length
+    }), [list])
+
     const handleDelete = async (id) => {
         const previous = list
         dispatch(removeKitFromList(id))
@@ -59,6 +74,22 @@ const Dashboard = () => {
                     <Link to="/kits/new"><PlusCircle className="h-4 w-4" /> New kit</Link>
                 </Button>
             </div>
+
+            {listStatus === "loaded" && list.length > 0 && (
+                <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                    {STAT_CONFIG.map(({ key, label, Icon, color, spin }) => (
+                        <div key={key} className="flex items-center gap-3 rounded-lg border border-border bg-card p-4">
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full" style={{ backgroundColor: `color-mix(in oklch, ${color} 15%, transparent)` }}>
+                                <Icon className={cn("h-4 w-4", spin && stats[key] > 0 && "animate-spin")} style={{ color }} />
+                            </div>
+                            <div>
+                                <p className="text-lg font-semibold leading-none">{stats[key]}</p>
+                                <p className="text-xs text-muted-foreground">{label}</p>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
 
             {listStatus === "loading" && (
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">

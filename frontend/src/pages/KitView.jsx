@@ -10,6 +10,7 @@ import { Skeleton } from "../components/ui/Skeleton.jsx"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../components/ui/Tabs.jsx"
 import StatusBadge from "../components/kit/StatusBadge.jsx"
 import GenerationProgress from "../components/kit/GenerationProgress.jsx"
+import KitOverview from "../components/kit/KitOverview.jsx"
 import CompanyBriefCard from "../components/kit/CompanyBriefCard.jsx"
 import RoleOverview from "../components/kit/RoleOverview.jsx"
 import QuestionsBoard from "../components/kit/QuestionsBoard.jsx"
@@ -118,14 +119,16 @@ const KitView = () => {
             )}
 
             {kit.status === "ready" && (
-                <Tabs defaultValue="brief">
+                <Tabs defaultValue="overview">
                     <TabsList>
+                        <TabsTrigger value="overview">Overview</TabsTrigger>
                         <TabsTrigger value="brief">Company Brief</TabsTrigger>
                         <TabsTrigger value="role">Role</TabsTrigger>
                         <TabsTrigger value="questions">Questions</TabsTrigger>
                         <TabsTrigger value="flashcards">Flashcards</TabsTrigger>
                         <TabsTrigger value="schedule">Schedule</TabsTrigger>
                     </TabsList>
+                    <TabsContent value="overview"><KitOverview kit={kit} /></TabsContent>
                     <TabsContent value="brief"><CompanyBriefCard kit={kit} onKitUpdate={handleKitUpdate} disabled={disabled} /></TabsContent>
                     <TabsContent value="role"><RoleOverview role={kit.role} /></TabsContent>
                     <TabsContent value="questions"><QuestionsBoard kit={kit} onKitUpdate={handleKitUpdate} disabled={disabled} /></TabsContent>

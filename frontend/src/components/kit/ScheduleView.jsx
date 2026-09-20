@@ -3,6 +3,7 @@ import { RefreshCw, Loader2, Clock } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../ui/Card.jsx"
 import { Badge } from "../ui/Badge.jsx"
 import { Button } from "../ui/Button.jsx"
+import SimpleBarChart from "../charts/SimpleBarChart.jsx"
 import api from "../../lib/axios.js"
 import { toast } from "sonner"
 
@@ -33,6 +34,13 @@ const ScheduleView = ({ kit, onKitUpdate, disabled }) => {
                     {regenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />} Rebuild
                 </Button>
             </div>
+
+            <Card className="mb-4">
+                <CardContent className="pt-5">
+                    <SimpleBarChart data={kit.schedule.days.map((d) => ({ day: `Day ${d.day}`, minutes: d.minutes }))} xKey="day" yKey="minutes" valueSuffix="min" height={180} />
+                </CardContent>
+            </Card>
+
             <div className="flex flex-col gap-3">
                 {kit.schedule.days.map((day) => (
                     <Card key={day.day}>
