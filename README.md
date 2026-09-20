@@ -74,6 +74,38 @@ local testing.
 | `ALLOW_PRIVATE_HOSTS` | backend | Dev/test-only escape hatch for the SSRF guard (ignored when `NODE_ENV=production`) |
 | `VITE_SERVER_URL` | frontend | Backend base URL |
 
+## Deployment (free tier)
+
+**Backend → Render** (or Railway/Fly.io — same idea)
+1. New "Web Service" → connect this GitHub repo → **root directory: `backend`**.
+2. Build command: `npm install`. Start command: `npm start`.
+3. Environment variables (Render → Environment tab): `MONGODB_URL`,
+   `JWT_SECRET`, `GROQ_API_KEY`, `GROQ_API_BASE_URL`, `GROQ_MODEL`,
+   `CRAWLER_USER_AGENT`, `ALLOW_PRIVATE_HOSTS=false`, `NODE_ENV=production`,
+   and `FRONTEND_URL` — set this to the Vercel URL from the step below (you'll
+   fill it in after the frontend is deployed, then redeploy).
+4. In MongoDB Atlas → Network Access, add `0.0.0.0/0` (or Render's static
+   outbound IPs if you're on a paid Atlas tier) so the deployed backend can
+   reach the cluster.
+5. Once live, note the backend's public URL (e.g. `https://interviewiq-api.onrender.com`).
+
+**Frontend → Vercel**
+1. New Project → import this repo → **root directory: `frontend`**.
+2. Framework preset: Vite. Build command: `npm run build`. Output: `dist`.
+3. Environment variable: `VITE_SERVER_URL` = the Render backend URL from above.
+4. Deploy, then copy the Vercel URL back into the backend's `FRONTEND_URL`
+   env var on Render and redeploy the backend so CORS allows it.
+
+**Why this pairing**: both have genuine free tiers with no card required for
+the tier used here, and cookies work correctly because both serve over HTTPS
+in production — the auth cookie is set with `secure: true, sameSite: "none"`
+only when `NODE_ENV=production` (see `auth.controller.js`), which requires
+HTTPS on both sides; Render and Vercel provide this by default.
+
+Render's free tier spins down on idle — the first request after inactivity
+can take ~30-60s to wake the backend, which will look like the app hanging
+on first login after a break. This is a free-tier trade-off, not a bug.
+
 ## Architecture
 
 ```
