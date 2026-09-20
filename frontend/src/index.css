@@ -25,30 +25,54 @@
   --input: oklch(0.9 0.005 265);
   --ring: oklch(0.55 0.2 265);
   --radius: 0.75rem;
+
+  /* Data-viz roles - validated categorical/status/sequential steps (light).
+     See dataviz skill references/palette.md; kept as raw hex since the
+     validator and recharts both consume hex directly. */
+  --chart-1: #2a78d6; /* blue */
+  --chart-2: #eb6834; /* orange */
+  --chart-3: #1baf7a; /* aqua */
+  --chart-4: #eda100; /* yellow */
+  --chart-good: #0ca30c;
+  --chart-warning: #d99400;
+  --chart-critical: #d03b3b;
+  --chart-grid: oklch(0.9 0.005 265);
+  --chart-track: oklch(0.93 0.006 265);
 }
 
 .dark {
-  --background: oklch(0.14 0.005 265);
-  --foreground: oklch(0.96 0 0);
-  --card: oklch(0.18 0.006 265);
-  --card-foreground: oklch(0.96 0 0);
-  --popover: oklch(0.18 0.006 265);
-  --popover-foreground: oklch(0.96 0 0);
-  --primary: oklch(0.68 0.19 265);
+  --background: oklch(0.145 0.006 264);
+  --foreground: oklch(0.97 0.002 264);
+  --card: oklch(0.205 0.008 264);
+  --card-foreground: oklch(0.97 0.002 264);
+  --popover: oklch(0.205 0.008 264);
+  --popover-foreground: oklch(0.97 0.002 264);
+  --primary: oklch(0.7 0.18 264);
   --primary-foreground: oklch(0.14 0 0);
-  --secondary: oklch(0.24 0.01 265);
-  --secondary-foreground: oklch(0.96 0 0);
-  --muted: oklch(0.24 0.01 265);
-  --muted-foreground: oklch(0.66 0.02 265);
-  --accent: oklch(0.28 0.03 265);
-  --accent-foreground: oklch(0.96 0 0);
-  --destructive: oklch(0.65 0.24 27);
-  --destructive-foreground: oklch(0.98 0 0);
-  --success: oklch(0.7 0.15 150);
-  --warning: oklch(0.8 0.15 80);
-  --border: oklch(0.3 0.01 265);
-  --input: oklch(0.3 0.01 265);
-  --ring: oklch(0.68 0.19 265);
+  --secondary: oklch(0.26 0.012 264);
+  --secondary-foreground: oklch(0.97 0.002 264);
+  --muted: oklch(0.26 0.012 264);
+  --muted-foreground: oklch(0.72 0.018 264);
+  --accent: oklch(0.31 0.035 264);
+  --accent-foreground: oklch(0.97 0.002 264);
+  --destructive: oklch(0.68 0.22 27);
+  --destructive-foreground: oklch(0.14 0 0);
+  --success: oklch(0.72 0.15 150);
+  --warning: oklch(0.82 0.15 80);
+  --border: oklch(0.33 0.014 264);
+  --input: oklch(0.33 0.014 264);
+  --ring: oklch(0.7 0.18 264);
+
+  /* Data-viz roles (dark) - same eight-hue set, stepped for the dark surface. */
+  --chart-1: #3987e5;
+  --chart-2: #d95926;
+  --chart-3: #199e70;
+  --chart-4: #c98500;
+  --chart-good: #0ca30c;
+  --chart-warning: #fab219;
+  --chart-critical: #e66767;
+  --chart-grid: oklch(0.33 0.014 264);
+  --chart-track: oklch(0.28 0.014 264);
 }
 
 @theme inline {
@@ -103,4 +127,36 @@ body {
   background-color: var(--muted-foreground);
   opacity: 0.3;
   border-radius: 999px;
+}
+
+@keyframes card-flip-in {
+  from { opacity: 0; transform: rotateX(-8deg) translateY(6px); }
+  to { opacity: 1; transform: rotateX(0) translateY(0); }
+}
+.animate-card-in {
+  animation: card-flip-in 0.28s ease-out;
+}
+
+/* Flashcard 3D flip (Practice mode) */
+.flip-card {
+  perspective: 1600px;
+}
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.5s cubic-bezier(0.4, 0.2, 0.2, 1);
+  transform-style: preserve-3d;
+}
+.flip-card-inner.is-flipped {
+  transform: rotateY(180deg);
+}
+.flip-card-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.flip-card-back {
+  transform: rotateY(180deg);
 }
